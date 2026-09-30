@@ -432,6 +432,8 @@ code{font-family:var(--mono);font-size:.86em}
 @media (max-width:700px){.shapes span:nth-child(n+4){display:none}.shapes span:nth-child(1){top:22px!important;left:-56px!important}.shapes span:nth-child(2){top:-44px!important;right:-44px!important}}
 .footer{padding-block:36px 44px}
 .footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;color:var(--faint)}
+.src-link{display:inline-block;padding-block:10px;margin-block:-10px;color:var(--text);text-decoration:underline;text-decoration-color:var(--coral);text-decoration-thickness:2px;text-underline-offset:3px;transition:color var(--micro) var(--ease)}
+.src-link:hover{color:var(--coral-ink)}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{transition-duration:.01ms!important;transition-delay:0ms!important;animation:none!important}
@@ -945,7 +947,7 @@ code{font-family:var(--mono);font-size:.86em}
 </main>
 
 <footer class="footer">
-  <div class="wrap mono"><span>© 2026 Samuel Ren · Montreal</span><span>One HTML file, no framework</span></div>
+  <div class="wrap mono"><span>© 2026 Samuel Ren · Montreal</span><span>Designed and built by me · <a class="src-link" href="https://github.com/SamuelRenCS/portfolio">View source <span aria-hidden="true">↗</span></a></span></div>
 </footer>
 
 <script>
