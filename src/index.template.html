@@ -1,0 +1,1190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Samuel Ren, Product Engineer</title>
+<meta name="description" content="Samuel Ren is a product engineer and tech lead at CortexFlex. He builds the whole product, from the problem and the tradeoffs through Flutter, Django and Next.js to the App Store, and the product page that sells it.">
+<meta name="theme-color" content="#FFF9F1">
+<meta name="color-scheme" content="light">
+<meta property="og:title" content="Samuel Ren, Product Engineer">
+<meta property="og:description" content="I build the whole product, and make it feel right.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23FF5A36'/%3E%3Cpath d='M20 42l12-20 12 20' fill='none' stroke='%23FFF9F1' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='46' cy='18' r='6' fill='%23FFC23D'/%3E%3C/svg%3E">
+<style>
+@font-face{font-family:"Manrope";font-style:normal;font-weight:400 800;font-display:swap;src:url({{font:Manrope-400-800.woff2}}) format("woff2")}
+@font-face{font-family:"Geist Mono";font-style:normal;font-weight:400 500;font-display:swap;src:url({{font:GeistMono-normal-400.woff2}}) format("woff2")}
+
+:root{
+  /* Flat, joyful accents. The *-ink variants are for text on cream (4.5:1+). */
+  --coral:#FF5A36;  --coral-ink:#C9330F;
+  --sun:#FFC23D;    --sun-ink:#8A5A00;
+  --mint:#1FC98F;   --mint-ink:#0B7A55;
+  --sky:#3D8BFF;    --sky-ink:#1B5FCC;
+  --grape:#8A6CFF;  --grape-ink:#5C3FE0;
+  --cream:#FFF9F1;
+  --ink:#1B1726;
+
+  --sans:"Manrope",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --gutter:clamp(16px,4vw,48px);
+  --maxw:1200px;
+  --header-h:76px;
+  /* Motion: three speeds. Micro for hover and press, reveal for content, stage for big moves. */
+  --spring:cubic-bezier(.22,1,.36,1);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --micro:.18s;
+  --frame:url({{asset:phone-frame.webp}});
+}
+/* Surfaces. Cream is the page; .ink sections are dark panels floating on it. --fill is a flat tint for diagram parts. */
+body,.light{--bg:var(--cream);--text:var(--ink);--muted:#5A5368;--faint:#6E6580;--c:var(--coral);--c-ink:var(--coral-ink)}
+.ink{--bg:var(--ink);--text:#FFF9F1;--muted:#CFC7DB;--faint:#A89EB9;--fill:#2A2438;--rule:#453B5C;--c-ink:var(--c)}
+.t-coral{--c:var(--coral);--c-ink:var(--coral-ink)}
+.t-sun{--c:var(--sun);--c-ink:var(--sun-ink)}
+.t-mint{--c:var(--mint);--c-ink:var(--mint-ink)}
+.t-sky{--c:var(--sky);--c-ink:var(--sky-ink)}
+.t-grape{--c:var(--grape);--c-ink:var(--grape-ink)}
+/* Tints derived from --c must be re-declared wherever --c changes, or they keep the parent's color. */
+body,.light,.t-coral,.t-sun,.t-mint,.t-sky,.t-grape{--fill:color-mix(in srgb,var(--c) 13%,#FFFFFF);--rule:color-mix(in srgb,var(--c) 35%,#E4D4BF)}
+.ink,.ink .t-coral,.ink .t-sun,.ink .t-mint,.ink .t-sky,.ink .t-grape{--fill:#2A2438;--rule:#453B5C}
+.ink.t-coral,.ink .t-coral{--c-ink:#FF7A5C}.ink.t-sun,.ink .t-sun{--c-ink:var(--sun)}.ink.t-mint,.ink .t-mint{--c-ink:var(--mint)}.ink.t-sky,.ink .t-sky{--c-ink:#6FA8FF}.ink.t-grape,.ink .t-grape{--c-ink:#A994FF}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;overflow-x:clip;scroll-padding-top:calc(var(--header-h) + 8px)}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16.5px;line-height:1.6;overflow-x:clip;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+img,svg{display:block;max-width:100%}
+img{height:auto}
+a{color:inherit}
+p{margin:0 0 1em}
+h1,h2,h3,h4{margin:0;font-weight:800;letter-spacing:-.035em;line-height:1.05;text-wrap:balance}
+p,li,dd{text-wrap:pretty}
+ul,ol{margin:0;padding:0;list-style:none}
+button{font:inherit;color:inherit}
+code{font-family:var(--mono);font-size:.86em}
+::selection{background:var(--sun);color:var(--ink)}
+:focus-visible{outline:3px solid var(--sky);outline-offset:3px;border-radius:10px}
+.skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--ink);color:var(--cream);padding:10px 14px;border-radius:12px;text-decoration:none;font-weight:700}
+.skip:focus{top:12px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.wrap{width:100%;max-width:calc(var(--maxw) + 2*var(--gutter));margin-inline:auto;padding-inline:var(--gutter)}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.03em}
+.caps{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase}
+
+/* Pills, buttons, marker */
+.pill{display:inline-flex;align-items:center;gap:8px;min-height:30px;padding:5px 13px;border-radius:999px;background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c-ink);font-family:var(--mono);font-size:11px;line-height:1.3;letter-spacing:.13em;text-transform:uppercase;font-weight:500}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--c);flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 24px;border:0;border-radius:999px;background:color-mix(in srgb,var(--text) 8%,transparent);color:var(--text);text-decoration:none;font-size:15.5px;font-weight:800;cursor:pointer;transition:background var(--micro) var(--ease),color var(--micro) var(--ease),transform .3s var(--spring)}
+.btn:hover{background:color-mix(in srgb,var(--text) 14%,transparent)}
+.btn:active{transform:scale(.97)}
+.btn-main{background:var(--coral);color:var(--ink)}
+.btn-main:hover{background:var(--ink);color:var(--cream)}
+.ink .btn-main:hover{background:var(--cream);color:var(--ink)}
+.btn .arr{transition:transform .3s var(--spring)}
+.btn:hover .arr{transform:translateX(4px)}
+.mark{background:linear-gradient(var(--sun),var(--sun)) no-repeat 0 86%/100% 30%;padding:0 .06em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.js .mark{background-size:0% 30%;transition:background-size 1s var(--spring) .45s}
+.js .in .mark{background-size:100% 30%}
+
+/* Reveal hierarchy.
+   .seq:  text blocks; children rise a short distance in sequence.
+   .rv:   a single text block.
+   .rv-m: media; travels further and settles more slowly, so it reads as the heavier object. */
+.js .seq>*,.js .rv{opacity:0;transform:translate3d(0,18px,0);transition:opacity .7s var(--ease),transform .9s var(--spring);transition-delay:calc(var(--d,0) * 1ms)}
+.js .seq>:nth-child(2){--d:80}.js .seq>:nth-child(3){--d:160}.js .seq>:nth-child(4){--d:240}.js .seq>:nth-child(5){--d:320}.js .seq>:nth-child(6){--d:400}
+.js .seq.in>*,.js .rv.in{opacity:1;transform:none}
+.js .rv-m{opacity:0;transform:translate3d(0,56px,0) scale(.97);transition:opacity .8s var(--ease),transform 1.3s var(--spring);transition-delay:calc(var(--d,0) * 1ms)}
+.js .rv-m.in{opacity:1;transform:none}
+
+/* ─────────── Header ─────────── */
+.site-header{position:sticky;top:0;z-index:50;padding-top:12px;height:var(--header-h);pointer-events:none}
+.bar-inner{pointer-events:auto;display:flex;align-items:center;gap:16px;height:56px;padding:0 8px 0 16px;border-radius:999px;background:#FFFFFF}
+.brand{display:flex;align-items:center;gap:10px;min-height:44px;text-decoration:none;font-weight:800;letter-spacing:-.02em;font-size:17px}
+.brand svg{width:28px;height:28px}
+.nav{margin-left:auto;display:flex;align-items:center;gap:6px}
+.nav-list{position:relative;display:flex;gap:2px}
+.nav-list a{position:relative;z-index:1;display:inline-flex;align-items:center;height:40px;padding:0 14px;border-radius:999px;text-decoration:none;font-size:14px;font-weight:700;color:var(--muted);transition:color var(--micro) var(--ease)}
+.nav-list a:hover,.nav-list a[aria-current="true"]{color:var(--ink)}
+.nav-blob{position:absolute;top:0;left:0;height:40px;border-radius:999px;background:color-mix(in srgb,var(--sun) 50%,#FFFFFF);opacity:0;transition:transform .55s var(--spring),width .55s var(--spring),opacity .3s var(--ease);pointer-events:none}
+.nav .btn-main{min-height:40px;padding:0 18px;font-size:14px;background:var(--ink);color:var(--cream)}
+.nav .btn-main:hover{background:var(--coral);color:var(--ink)}
+.menu-btn{display:none;width:44px;height:44px;border:0;border-radius:999px;background:color-mix(in srgb,var(--sun) 40%,#FFFFFF);cursor:pointer}
+.menu-btn svg{width:22px;height:22px;margin:auto}
+.menu-btn path{transition:transform .35s var(--spring);transform-origin:12px 12px}
+.menu-btn[aria-expanded="true"] path:first-child{transform:translateY(4px) rotate(45deg)}
+.menu-btn[aria-expanded="true"] path:last-child{transform:translateY(-4px) rotate(-45deg)}
+@media (max-width:900px){
+  .nav-list{display:none;position:fixed;top:calc(var(--header-h) + 4px);left:var(--gutter);right:var(--gutter);flex-direction:column;gap:0;padding:10px;background:var(--ink);border-radius:26px}
+  .nav-list.open{display:flex;animation:drop .4s var(--spring)}
+  .nav-list a{height:54px;padding:0 16px;font-size:18px;color:#FFF9F1}
+  .nav-list a:hover,.nav-list a[aria-current="true"]{color:var(--sun)}
+  .nav-blob{display:none}
+  .nav .btn-main{display:none}
+  .menu-btn{display:grid}
+}
+@keyframes drop{from{opacity:0;transform:translateY(-8px)}}
+
+/* ─────────── Devices ─────────── */
+/* The real Cortex iPhone frame. The screen is inset to the frame's measured cutout. */
+.phone{position:relative;aspect-ratio:800/1331}
+.phone::after{content:"";position:absolute;inset:0;background:var(--frame) center/100% 100% no-repeat;pointer-events:none;z-index:8}
+.phone .scr{position:absolute;left:13.125%;right:16.375%;top:4.459%;bottom:3.782%;overflow:hidden;border-radius:6%;clip-path:inset(0 round 6%);background:#0A0B0F}
+.phone .scr img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
+.browser{border-radius:14px;overflow:hidden;background:#0B0C10}
+.browser-bar{display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;background:#FFFFFF}
+.browser-bar i{width:9px;height:9px;border-radius:50%}
+.browser-bar i:nth-child(1){background:var(--coral)}.browser-bar i:nth-child(2){background:var(--sun)}.browser-bar i:nth-child(3){background:var(--mint)}
+.browser-bar span{margin-left:10px;padding:2px 10px;border-radius:7px;background:var(--cream);color:#6E6580;font-family:var(--mono);font-size:10.5px}
+
+/* ─────────── Hero ─────────── */
+.hero{padding-block:clamp(36px,5vw,72px) clamp(88px,10vw,136px)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,11fr) minmax(0,9fr);gap:clamp(32px,5vw,72px);align-items:center}
+.hero h1{margin-top:22px;font-size:clamp(46px,6.4vw,88px);line-height:.98;letter-spacing:-.05em}
+.hero h1 .c{color:var(--coral)}
+.hero-lede{max-width:44ch;margin:26px 0 0;font-size:clamp(17px,1vw + 10px,19.5px);line-height:1.6;color:var(--muted)}
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
+
+/* The art: a flat sun field that opens, then the product page slides in and the phone rises out of the bottom edge. */
+.hero-art{position:relative;aspect-ratio:1/1.04;border-radius:40px;background:var(--sun);overflow:hidden}
+.hero-art .browser{position:absolute;left:9%;top:10%;width:112%}
+.hero-art .phone{position:absolute;right:7%;top:36%;width:42%}
+.js .hero-art{clip-path:inset(7% 7% 7% 7% round 40px);transition:clip-path 1.2s var(--spring) .15s}
+.js .hero-art .browser{opacity:0;transform:translate3d(14%,0,0);transition:opacity .7s var(--ease) .45s,transform 1.3s var(--spring) .45s}
+.js .hero-art .phone{transform:translate3d(0,62%,0);transition:transform 1.3s var(--spring) .7s}
+.js .hero-art.in{clip-path:inset(0 round 40px)}
+.js .hero-art.in .browser,.js .hero-art.in .phone{opacity:1;transform:none}
+
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px clamp(20px,3vw,40px);margin:clamp(64px,8vw,104px) 0 0}
+.stat{display:grid;align-content:start;gap:8px}
+.stat::before{content:"";width:28px;height:6px;border-radius:6px;background:var(--c);margin-bottom:10px}
+.stat dt{order:2;font-size:15px;line-height:1.45;color:var(--muted);max-width:24ch}
+.stat dd{order:1;margin:0;font-size:clamp(48px,5vw,68px);font-weight:800;line-height:.95;letter-spacing:-.06em;font-variant-numeric:tabular-nums}
+.stat dd small{font-size:.6em;color:var(--c-ink);margin-left:1px}
+@media (max-width:980px){.hero-grid{grid-template-columns:minmax(0,1fr)}.hero-art{max-width:560px;width:100%;aspect-ratio:1/.92}.hero-art .phone{top:30%;width:38%}}
+@media (max-width:760px){.stats{grid-template-columns:1fr 1fr}}
+
+/* ─────────── Sections ─────────── */
+.section{position:relative;padding-block:clamp(96px,11vw,148px)}
+.ink,.light{color:var(--text)}
+.panel{margin-inline:clamp(8px,1.6vw,20px);border-radius:clamp(28px,3.5vw,48px);background:var(--bg)}
+.panel.tint{background:color-mix(in srgb,var(--c) 11%,var(--cream));--fill:#FFFFFF}
+.panel.tint .pill{background:#FFFFFF}
+.panel+.panel{margin-top:clamp(8px,1.6vw,20px)}
+.head{display:grid;justify-items:start;gap:18px;max-width:780px}
+.head.center{justify-items:center;text-align:center;margin-inline:auto}
+.h2{font-size:clamp(36px,4.6vw,60px)}
+.h2 .c{color:var(--c-ink)}
+.sub{margin:0;font-size:clamp(16.5px,.5vw + 14px,19px);line-height:1.55;color:var(--muted);max-width:58ch}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;color:var(--c-ink);margin:0}
+.eyebrow::before{content:"";width:22px;height:6px;border-radius:6px;background:var(--c)}
+
+/* ─────────── App tour ─────────── */
+.tour{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);grid-template-areas:"phone tabs";gap:clamp(32px,6vw,96px);align-items:center;margin-top:clamp(56px,6vw,80px)}
+.tour-phone{grid-area:phone;position:relative;width:min(100%,380px,calc((100svh - var(--header-h) - 96px) * .6));margin-inline:auto}
+.tour-phone::before{content:"";position:absolute;left:47%;top:47%;width:104%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:var(--c);transition:background-color .7s var(--ease)}
+.tour-hint{margin:22px 0 0;text-align:center;color:var(--faint)}
+/* Screens stack like a navigation stack: home at the bottom, pushed pages off to the right, the sheet below the fold. */
+#tour-screen{container-type:size}
+#tour-screen .s{position:absolute;inset:0;will-change:transform}
+#tour-screen .s img{object-fit:fill}
+#tour-screen .s-push{transform:translate3d(100%,0,0)}
+#tour-screen .s-sheet{transform:translate3d(0,100%,0);clip-path:inset(31.92% 0 0 0 round 6.25cqw 6.25cqw 0 0)}
+#tour-screen .s-dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+.press{position:absolute;z-index:4;pointer-events:none;background-repeat:no-repeat;filter:brightness(.6);opacity:0}
+.finger{position:absolute;z-index:7;left:0;top:0;width:12cqw;aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.42);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.7);opacity:0;pointer-events:none}
+.hs{position:absolute;z-index:6;display:none;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#tour-screen:not(.busy)[data-state="home"] .hs[data-on="home"],#tour-screen:not(.busy)[data-state="cal"] .hs[data-on="cal"],#tour-screen:not(.busy)[data-state="rank"] .hs[data-on="rank"],#tour-screen:not(.busy)[data-state="level"] .hs[data-on="level"],#tour-screen:not(.busy)[data-state="primer"] .hs[data-on="primer"]{display:block}
+
+.tabs{grid-area:tabs;display:grid;gap:4px}
+.tab{--c:var(--sun);position:relative;display:grid;grid-template-columns:34px minmax(0,1fr);gap:2px 14px;align-items:baseline;width:100%;padding:16px 4px 18px;border:0;background:none;text-align:left;cursor:pointer;color:var(--faint);transition:color var(--micro) var(--ease)}
+.tab .n{font-family:var(--mono);font-size:12px;letter-spacing:.06em;transition:color .4s var(--ease)}
+.tab .t{font-size:clamp(19px,1.6vw,22px);font-weight:800;letter-spacing:-.025em}
+.tab .d{grid-column:2;display:grid;grid-template-rows:0fr;opacity:0;font-size:15.5px;line-height:1.55;color:var(--muted);transition:grid-template-rows .6s var(--spring),opacity .4s var(--ease)}
+.tab .d>span{overflow:hidden}
+.tab .d>span>span{display:block;padding-top:8px}
+.tab .track{position:absolute;left:52px;right:4px;bottom:0;height:2px;border-radius:2px;background:var(--rule);overflow:hidden}
+.tab .bar{position:absolute;inset:0;background:var(--c);transform-origin:left;transform:scaleX(0)}
+.tab:hover{color:var(--text)}
+.tab[aria-selected="true"]{color:var(--text)}
+.tab[aria-selected="true"] .n{color:var(--c)}
+.tab[aria-selected="true"] .d{grid-template-rows:1fr;opacity:1;transition-delay:0s,.12s}
+.tab[aria-selected="true"] .bar{animation:fill var(--dur,7s) linear forwards}
+.tour.paused .tab[aria-selected="true"] .bar{animation-play-state:paused}
+.tour.static .tab .bar{animation:none;transform:scaleX(1)}
+@keyframes fill{to{transform:scaleX(1)}}
+.tour-desc{display:none}
+/* Phones: chapters become a swipeable row above the device; the active description sits below it. */
+@media (max-width:860px){
+  .tour{grid-template-columns:minmax(0,1fr);grid-template-areas:"tabs" "phone" "desc";gap:28px}
+  .tabs{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin-inline:calc(-1*var(--gutter));padding-inline:var(--gutter)}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{display:flex;flex:none;width:auto;min-height:44px;padding:0 16px;border-radius:999px;align-items:center;gap:8px;background:var(--fill);scroll-snap-align:center;transition:background .3s var(--ease),color .3s var(--ease)}
+  .tab .t{font-size:15px}
+  .tab .d{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .tab .track{display:none}
+  .tab[aria-selected="true"]{background:var(--c);color:var(--ink)}
+  .tab[aria-selected="true"] .n{color:var(--ink)}
+  .tour-phone{width:min(76%,300px)}
+  .tour-desc{grid-area:desc;display:block;margin:0 auto;max-width:44ch;text-align:center;color:var(--muted);min-height:6.2em;transition:opacity .3s var(--ease)}
+}
+
+/* ─────────── Case studies ─────────── */
+.case-head .h2{font-size:clamp(34px,4.3vw,56px)}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px clamp(20px,3vw,40px);margin:clamp(40px,5vw,56px) 0 0}
+.facts dt{color:var(--faint)}
+.facts dd{margin:8px 0 0;font-size:15.5px;font-weight:700;line-height:1.45}
+.facts dd b{color:var(--c-ink)}
+@media (max-width:900px){.facts{grid-template-columns:1fr 1fr}}
+
+.steps{position:relative;margin-top:clamp(64px,8vw,104px)}
+.rail{position:absolute;left:19px;top:20px;bottom:20px;width:3px;border-radius:3px;background:var(--rule)}
+.rail i{position:absolute;inset:0;border-radius:3px;background:var(--c);transform-origin:top;transform:scaleY(var(--p,0))}
+.step{position:relative;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(28px,5vw,80px);padding:0 0 clamp(80px,10vw,136px) 72px;align-items:start}
+.step:last-child{padding-bottom:0}
+.step>*{min-width:0}
+.num{position:absolute;left:0;top:0;display:grid;place-items:center;width:41px;height:41px;border-radius:50%;background:var(--fill);font-weight:800;font-size:15px;color:var(--faint);transition:background .45s var(--ease),color .45s var(--ease),transform .6s var(--spring)}
+.step.on .num{background:var(--c);color:var(--ink);transform:scale(1.08)}
+.step-label{margin:9px 0 14px;color:var(--c-ink)}
+.step h3{font-size:clamp(26px,2.6vw,34px);margin-bottom:18px}
+.step p{color:var(--muted)}
+.step p strong,.step li strong{color:var(--text);font-weight:800}
+.step-visual{position:sticky;top:calc(var(--header-h) + 32px)}
+@media (max-width:900px){.step{grid-template-columns:minmax(0,1fr);padding-left:64px}.step-visual{position:relative;top:auto}}
+@media (max-width:520px){.step{padding-left:0;padding-top:60px}.rail{display:none}}
+
+.list{display:grid;gap:14px}
+.list li{position:relative;padding-left:24px;color:var(--muted)}
+.list li::before{content:"";position:absolute;left:0;top:.62em;width:10px;height:10px;border-radius:3px;background:var(--c);transform:rotate(45deg) scale(.8)}
+
+.pull{margin:0}
+.pull q{display:block;font-size:clamp(30px,3.2vw,44px);font-weight:800;letter-spacing:-.045em;line-height:1.06;quotes:none;text-wrap:balance}
+.pull q::before{content:"“";display:block;height:.5em;margin-bottom:.12em;font-size:2em;line-height:1;color:var(--c)}
+.pull ul{display:grid;gap:12px;margin-top:32px}
+.pull li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:12px;color:var(--muted);font-size:15.5px}
+.pull li::before{content:"";width:14px;height:2.5px;margin-top:.72em;border-radius:2px;background:var(--faint)}
+
+.choices{display:grid;gap:26px}
+.choice{display:grid;gap:3px}
+.choice s{color:var(--faint);font-size:15px;text-decoration-color:var(--coral);text-decoration-thickness:2px}
+.choice b{font-size:18px;letter-spacing:-.015em;line-height:1.35}
+.choice b::before{content:"→ ";color:var(--c-ink)}
+.choice p{margin:3px 0 0;font-size:15px;line-height:1.5}
+
+.flow{display:grid;max-width:440px}
+.node{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:13px 16px;border-radius:14px;background:var(--fill);font-size:14.5px;font-weight:700;line-height:1.35}
+.node small{font-family:var(--mono);font-size:10.5px;font-weight:400;letter-spacing:.05em;color:var(--faint);text-align:right;text-transform:uppercase;white-space:nowrap}
+.node.key{background:var(--c);color:var(--ink)}
+.node.key small{color:var(--ink);opacity:.72}
+.node.off{background:transparent;color:var(--faint);font-weight:500;padding-inline:4px}
+.node.off s{text-decoration-color:var(--coral);text-decoration-thickness:2px}
+.edge{width:2px;height:16px;margin-left:24px;background:var(--rule)}
+.edge.r{margin-left:calc(50% + 29px)}
+.flow-k{margin:14px 0 8px;color:var(--faint)}
+.flow .node+.node,.flow .node+.sub,.flow .sub+.node{margin-top:8px}
+.flow .sub{display:grid;gap:8px;margin-left:24px;padding-left:18px;border-left:2px solid var(--rule)}
+.fork{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px}
+.two b{display:block;font-size:15px;margin-bottom:4px}
+.two b::before{content:"";display:inline-block;width:10px;height:10px;margin-right:8px;border-radius:50%;background:var(--c)}
+.two b.alt::before{background:var(--sun)}
+.two span{font-size:14px;color:var(--muted);line-height:1.5}
+.js .flow>*,.js .arch>*{opacity:0;transform:translate3d(0,10px,0);transition:opacity .5s var(--ease) calc(var(--i,0)*80ms + 300ms),transform .7s var(--spring) calc(var(--i,0)*80ms + 300ms)}
+.js .in .flow>*,.js .in .arch>*{opacity:1;transform:none}
+
+/* A flat color field; a device rises out of its bottom edge. */
+.field{position:relative;overflow:hidden;border-radius:32px;background:color-mix(in srgb,var(--c) 26%,var(--cream));aspect-ratio:4/3.1}
+.field .phone{position:absolute;left:50%;top:9%;width:50%;margin-left:-25%}
+.js .rv-m .field .phone,.js .field.rv-m .phone{transform:translate3d(0,40%,0);transition:transform 1.3s var(--spring) .25s}
+.js .rv-m.in .field .phone,.js .field.rv-m.in .phone{transform:none}
+
+.step .big,.big{margin:0;color:var(--text);font-size:clamp(140px,17vw,232px);font-weight:800;line-height:.8;letter-spacing:-.085em;font-variant-numeric:tabular-nums}
+.big .x{color:var(--coral)}
+.big-label{margin:26px 0 0;font-size:19px;color:var(--muted);line-height:1.4}
+.big-label b{display:block;color:var(--text);font-size:24px;letter-spacing:-.02em}
+
+.code{margin:28px 0 0;border-radius:16px;overflow:hidden;background:var(--ink);color:#FFF9F1}
+.code pre{margin:0;padding:18px 20px 6px;font-family:var(--mono);font-size:12.5px;line-height:1.7;overflow-x:auto}
+.code .k{color:var(--sun)}
+.code figcaption{padding:6px 20px 16px;font-size:12.5px;color:#A89EB9}
+
+.arch{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.arch .node{display:block}
+.arch .node small{display:block;text-align:left;margin-top:3px;white-space:normal}
+.arch .wide{grid-column:1/-1}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips span{font-family:var(--mono);font-size:10.5px;font-weight:400;padding:4px 9px;border-radius:999px;background:color-mix(in srgb,var(--text) 9%,transparent);color:var(--muted)}
+.chips span.hl{background:var(--c);color:var(--ink)}
+.runbooks{display:grid;gap:10px;margin-top:28px}
+.runbooks li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:12px;font-size:14.5px;color:var(--muted)}
+.runbooks li::before{content:"✓";display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--mint);color:var(--ink);font-size:11px;font-weight:800}
+
+/* Wide screenshots run past the column to the panel edge, which crops them. */
+.panel.ink{overflow:clip}
+.bleed .browser{width:128%}
+@media (max-width:900px){.bleed .browser{width:100%}}
+.cap{display:flex;justify-content:space-between;gap:12px;margin:14px 2px 0;color:var(--faint);font-size:13.5px}
+
+/* ─────────── Product page: the real page, scrolled by your scroll ─────────── */
+.pp-pin{position:relative;height:300vh;margin-top:clamp(8px,2vw,24px)}
+.pp-sticky{position:sticky;top:var(--header-h);height:calc(100vh - var(--header-h));height:calc(100svh - var(--header-h));display:grid;grid-template-columns:minmax(0,8fr) minmax(0,4fr);gap:clamp(28px,4vw,56px);align-items:center}
+.pp-stage{position:relative}
+.pp-view{position:relative;aspect-ratio:16/10;overflow:hidden;background:#0B0C10}
+.pp-view img{width:100%;will-change:transform}
+.pp-stage .phone{position:absolute;right:-5%;bottom:-9%;width:clamp(110px,22%,190px);z-index:2}
+.pp-steps{display:grid;gap:6px;counter-reset:pp}
+.pp-steps button{display:grid;grid-template-columns:30px minmax(0,1fr);gap:2px 12px;width:100%;padding:10px 0;border:0;background:none;text-align:left;cursor:pointer;color:var(--faint);transition:color .35s var(--ease)}
+.pp-steps .n{font-family:var(--mono);font-size:12px;padding-top:4px}
+.pp-steps b{font-size:18px;letter-spacing:-.02em}
+.pp-steps .d{grid-column:2;font-size:14.5px;line-height:1.5;display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .5s var(--spring),opacity .35s var(--ease)}
+.pp-steps .d>span{overflow:hidden}
+.pp-steps button:hover{color:var(--text)}
+.pp-steps button[aria-current="true"]{color:var(--text)}
+.pp-steps button[aria-current="true"] .n{color:var(--c-ink)}
+.pp-steps button[aria-current="true"] .d{grid-template-rows:1fr;opacity:1;color:var(--muted)}
+.pp-note{margin:14px 0 0;color:var(--faint)}
+.pp-pin.static{height:auto}
+.pp-pin.static .pp-sticky{position:relative;top:auto;height:auto}
+@media (max-width:900px){
+  .pp-pin{height:260vh}
+  .pp-sticky{grid-template-columns:minmax(0,1fr);align-content:center;gap:28px}
+  .pp-stage .phone{width:24%;right:-2%;bottom:-14%}
+  .pp-steps{display:block;min-height:7.5em}
+  .pp-steps li{display:none}
+  .pp-steps li:has([aria-current="true"]){display:block}
+  .pp-pin.static .pp-steps{display:grid}
+  .pp-pin.static .pp-steps li{display:block}
+}
+
+.points{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px clamp(20px,3vw,40px);margin-top:clamp(72px,8vw,112px)}
+.point .n{display:block;margin-bottom:14px;font-size:clamp(30px,3vw,40px);font-weight:800;letter-spacing:-.045em;line-height:1;color:var(--c-ink)}
+.point b{display:block;font-size:17px;letter-spacing:-.015em;margin-bottom:6px}
+.point p{margin:0;font-size:15px;color:var(--muted);line-height:1.55}
+@media (max-width:900px){.points{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.points{grid-template-columns:1fr}}
+
+/* ─────────── More work ─────────── */
+.works{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:48px clamp(24px,4vw,56px);margin-top:clamp(48px,6vw,72px)}
+.work{display:grid;align-content:start;gap:12px}
+.work .top{display:flex;justify-content:space-between;gap:8px;color:var(--c-ink);margin:0}
+.work .top::before{content:"";flex:none;width:28px;height:6px;margin-top:5px;border-radius:6px;background:var(--c);order:-1}
+.work .top span:first-of-type{margin-right:auto}
+.work h3{font-size:23px;letter-spacing:-.03em;line-height:1.15}
+.work p{margin:0;font-size:15.5px;color:var(--muted)}
+.work p.top{font-size:11.5px}
+.work p.stack{font-size:12px;color:var(--faint)}
+@media (max-width:900px){.works{grid-template-columns:minmax(0,1fr);max-width:620px}}
+
+.log{margin-top:40px;display:grid}
+.log li{display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:baseline;gap:6px 20px;padding:14px 0}
+.log time{color:var(--faint)}
+.log .title{font-weight:700;font-size:16px;letter-spacing:-.01em}
+.log .tags{display:flex;gap:6px}
+.tag{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;background:var(--fill);color:var(--muted);font-size:12px;font-weight:700;white-space:nowrap}
+@media (max-width:680px){.log li{grid-template-columns:60px minmax(0,1fr)}.log .tags{grid-column:2}}
+
+/* ─────────── Experience ─────────── */
+.roles{margin-top:clamp(40px,5vw,64px);display:grid}
+.role{display:grid;grid-template-columns:220px minmax(0,1fr);gap:10px 48px;padding-block:28px}
+.role .when{display:grid;align-content:start;gap:10px;color:var(--faint);padding-top:6px}
+.role .when .pill{justify-self:start}
+.role h3{font-size:25px;letter-spacing:-.03em}
+.role .org{margin:4px 0 16px;color:var(--muted);font-weight:700}
+@media (max-width:760px){.role{grid-template-columns:minmax(0,1fr);gap:6px;padding-block:22px}.role .when{grid-auto-flow:column;justify-content:start;align-items:center;gap:12px;padding-top:0}}
+
+.project{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(28px,5vw,72px);align-items:center;margin-top:clamp(72px,9vw,120px)}
+.project .shot{padding:clamp(20px,3.4vw,44px);border-radius:32px;background:color-mix(in srgb,var(--c) 18%,var(--cream))}
+.project .shot img{border-radius:12px}
+.project h3{font-size:32px;margin:14px 0}
+.project p{color:var(--muted)}
+.project .own b{color:var(--text)}
+@media (max-width:860px){.project{grid-template-columns:minmax(0,1fr)}}
+
+.skills{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px clamp(20px,3vw,40px);margin-top:clamp(72px,9vw,120px)}
+.skill h3{display:flex;align-items:center;gap:10px;margin-bottom:14px;color:var(--c-ink);font-family:var(--mono);font-weight:500;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase}
+.skill h3::before{content:"";width:22px;height:6px;border-radius:6px;background:var(--c)}
+.skill li{font-size:16px;font-weight:700;padding:4px 0}
+@media (max-width:900px){.skills{grid-template-columns:1fr 1fr}}
+
+/* ─────────── About ─────────── */
+.about{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:clamp(32px,6vw,96px);align-items:end}
+.about-text p{font-size:clamp(26px,2.7vw,38px);font-weight:800;letter-spacing:-.04em;line-height:1.18}
+.about-text p:last-child{margin:0;color:var(--muted)}
+.about-list{display:grid;gap:22px}
+.about-list li{display:grid;gap:4px;font-size:16px;font-weight:700}
+.about-list .k{color:var(--c-ink)}
+@media (max-width:860px){.about{grid-template-columns:minmax(0,1fr)}}
+
+/* ─────────── Contact ─────────── */
+.cta{text-align:center;overflow:hidden}
+.cta .wrap{position:relative;z-index:1}
+.cta h2{margin-top:24px;font-size:clamp(40px,6vw,80px);letter-spacing:-.055em;line-height:1}
+.cta h2 .c{color:var(--coral)}
+.cta .sub{margin:24px auto 0}
+.cta-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:36px}
+.cta .btn:not(.btn-main){background:rgba(255,249,241,.1)}
+.cta .btn:not(.btn-main):hover{background:rgba(255,249,241,.18)}
+.copied{min-height:1.5em;margin:16px 0 0;font-family:var(--mono);font-size:12px;color:var(--sun)}
+/* Flat shapes tucked into the panel's corners. They pop in once, when the panel arrives. */
+.shapes span{position:absolute;display:block;border-radius:999px}
+.js .shapes span{transform:scale(0) rotate(var(--r,0deg));transition:transform .9s var(--spring) calc(var(--i)*90ms + 200ms)}
+.js .shapes.in span,.shapes span{transform:scale(1) rotate(var(--r,0deg))}
+@media (max-width:700px){.shapes span:nth-child(n+4){display:none}.shapes span:nth-child(1){top:22px!important;left:-56px!important}.shapes span:nth-child(2){top:-44px!important;right:-44px!important}}
+.footer{padding-block:36px 44px}
+.footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;color:var(--faint)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important;transition-delay:0ms!important;animation:none!important}
+  .js .hero-art{clip-path:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="bar-inner">
+      <a class="brand" href="#main" aria-label="Samuel Ren, back to top">
+        <svg viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="9" fill="#FF5A36"/><path d="M8.5 18.5l5.5-9 5.5 9" fill="none" stroke="#FFF9F1" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="21" cy="7" r="3" fill="#FFC23D"/></svg>
+        Samuel Ren
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <div class="nav-list" id="nav-list">
+          <span class="nav-blob" aria-hidden="true"></span>
+          <a href="#tour">Product</a>
+          <a href="#work">Case studies</a>
+          <a href="#product-page">Product page</a>
+          <a href="#experience">Experience</a>
+          <a href="#about">About</a>
+        </div>
+        <a class="btn btn-main" href="#contact">Get in touch</a>
+        <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav-list" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16"/><path d="M4 16h16"/></svg>
+        </button>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ═════════ Hero ═════════ -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="seq">
+        <span class="pill t-mint"><span class="dot"></span>Product engineer · Montreal</span>
+        <h1 id="hero-title">I build the whole product. <span class="c">And make it <span class="mark">feel right.</span></span></h1>
+        <p class="hero-lede">I’m Samuel, tech lead at CortexFlex. I take features from the problem and the tradeoffs through Flutter, Next.js and Django to the App Store, and I built the product page that makes the first impression.</p>
+        <div class="hero-actions">
+          <a class="btn btn-main" href="#work">See the work <span class="arr" aria-hidden="true">→</span></a>
+          <a class="btn" href="mailto:samuelrencs@gmail.com">Email me</a>
+        </div>
+      </div>
+      <div class="hero-art rv-art" role="group" aria-label="CortexFlex on the web and on iOS">
+        <div class="browser">
+          <div class="browser-bar" aria-hidden="true"><i></i><i></i><i></i><span>cortexflex.org</span></div>
+          <img src="{{asset:pp-hero.webp}}" width="1400" height="875" alt="The cortexflex.org product page I built: a hero reading “Train Your Brain. Elevate Your Game.” over a training video." fetchpriority="high" decoding="async">
+        </div>
+        <div class="phone"><div class="scr"><img src="{{asset:app-rankings.webp}}" width="640" height="1391" alt="Circuit Showdown team rankings in the CortexFlex app, with a podium of the top three teams." decoding="async"></div></div>
+      </div>
+    </div>
+
+    <dl class="stats seq" aria-label="Nine months at CortexFlex">
+      <div class="stat t-coral"><dt>signups since I joined in January 2026</dt><dd>2<small>×</small></dd></div>
+      <div class="stat t-sun"><dt>developers I lead as tech lead</dt><dd>6</dd></div>
+      <div class="stat t-mint"><dt>commits this year across mobile and backend</dt><dd><span data-count="340">340</span><small>+</small></dd></div>
+      <div class="stat t-sky"><dt>platforms: iOS, Android and the web</dt><dd>3</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- ═════════ App tour ═════════ -->
+<section class="section panel ink t-sun" id="tour" aria-labelledby="tour-title">
+  <div class="wrap">
+    <div class="head center seq">
+      <span class="pill"><span class="dot"></span>The product</span>
+      <h2 class="h2" id="tour-title">What I’ve built <span class="c">into the app</span></h2>
+      <p class="sub">The current release of Cortex Flex Performance, behaving the way it does on a phone. Pick a feature, or tap the screen yourself.</p>
+    </div>
+    <div class="tour rv" id="tour-ui">
+      <div class="tour-phone" id="tour-phone">
+        <div class="phone">
+          <div class="scr" id="tour-screen" role="tabpanel" aria-labelledby="tab-0" data-state="home">
+            <div class="s" data-s="home"><img src="{{asset:app-home.webp}}" width="640" height="1391" loading="lazy" decoding="async" alt="Home: level, streak and team rank in the header, then health, the AM primer, nutrition and today’s checklist."></div>
+            <div class="s-dim" aria-hidden="true"></div>
+            <div class="s s-push" data-s="rank" aria-hidden="true"><img src="{{asset:app-rankings.webp}}" width="640" height="1391" loading="lazy" decoding="async" alt="Team rankings for Circuit Showdown: weekly and season views, a podium and a ranked list."></div>
+            <div class="s s-push" data-s="level" aria-hidden="true"><img src="{{asset:app-level.webp}}" width="640" height="1391" loading="lazy" decoding="async" alt="Level progress: level 14, 690 of 1,150 XP, and the road to the next tier."></div>
+            <div class="s s-push" data-s="primer" aria-hidden="true"><img src="{{asset:app-primer.webp}}" width="640" height="1391" loading="lazy" decoding="async" alt="The AM primer runner on Push-up Pogos, with a demo video and a coaching cue."></div>
+            <div class="s s-sheet" data-s="cal" aria-hidden="true"><img src="{{asset:app-calibration.webp}}" width="640" height="1391" loading="lazy" decoding="async" alt="The daily calibration sheet: questions about injuries and weight goal, and a Confirm button."></div>
+            <span class="finger" aria-hidden="true"></span>
+            <button class="hs" type="button" tabindex="-1" aria-hidden="true" data-on="cal" data-go="1" data-key="confirm" style="left:5%;top:88.4%;width:90%;height:5.8%"></button>
+            <button class="hs" type="button" tabindex="-1" aria-hidden="true" data-on="cal" data-go="1" style="left:0;top:0;width:100%;height:31%"></button>
+            <button class="hs" type="button" tabindex="-1" aria-hidden="true" data-on="home" data-go="2" data-key="rank" style="left:84%;top:9.4%;width:14%;height:3.8%"></button>
+            <button class="hs" type="button" tabindex="-1" aria-hidden="true" data-on="home" data-go="3" data-key="level" style="left:3%;top:8.5%;width:51%;height:6%"></button>
+            <button class="hs" type="button" tabindex="-1" aria-hidden="true" data-on="home" data-go="4" data-key="primer" style="left:5%;top:34.8%;width:79%;height:9.2%"></button>
+            <button class="hs" type="button" tabindex="-1" aria-hidden="true" data-on="rank" data-go="1" data-key="back" style="left:1%;top:7.6%;width:14%;height:5.4%"></button>
+            <button class="hs" type="button" tabindex="-1" aria-hidden="true" data-on="level" data-go="1" data-key="back" style="left:1%;top:7.6%;width:14%;height:5.4%"></button>
+            <button class="hs" type="button" tabindex="-1" aria-hidden="true" data-on="primer" data-go="1" data-key="back" style="left:1%;top:7.6%;width:16%;height:5.6%"></button>
+          </div>
+        </div>
+        <p class="tour-hint mono" aria-hidden="true">Tap the screen · it works</p>
+      </div>
+      <div class="tabs" role="tablist" aria-label="App features">
+        <button class="tab" id="tab-0" style="--c:var(--mint)" role="tab" aria-selected="true" aria-controls="tour-screen" type="button"><span class="n">01</span><span class="t">Daily calibration</span><span class="d"><span><span>Open the app and a sheet asks two quick questions before the day’s training. Answers carry over until the athlete changes them, so it never feels like a form.</span></span></span><span class="track"><span class="bar"></span></span></button>
+        <button class="tab" id="tab-1" style="--c:var(--sun)" role="tab" aria-selected="false" aria-controls="tour-screen" type="button" tabindex="-1"><span class="n">02</span><span class="t">Today</span><span class="d"><span><span>Level, streak and team rank up top; health, primers, nutrition and the checklist below. I rebuilt it around one bootstrap request cached on disk, so it opens instantly.</span></span></span><span class="track"><span class="bar"></span></span></button>
+        <button class="tab" id="tab-2" style="--c:var(--coral)" role="tab" aria-selected="false" aria-controls="tour-screen" type="button" tabindex="-1"><span class="n">03</span><span class="t">Circuit Showdown</span><span class="d"><span><span>Tap the rank. Weekly and seasonal team standings, local and global. Points come from coach-reviewed work, so the board rewards quality, not volume.</span></span></span><span class="track"><span class="bar"></span></span></button>
+        <button class="tab" id="tab-3" style="--c:var(--sky)" role="tab" aria-selected="false" aria-controls="tour-screen" type="button" tabindex="-1"><span class="n">04</span><span class="t">XP &amp; levels</span><span class="d"><span><span>Tap the level bar. Every completed step earns XP: 500 to reach level 2, then 50 more per level. Awards are idempotent, so a retry never counts twice.</span></span></span><span class="track"><span class="bar"></span></span></button>
+        <button class="tab" id="tab-4" style="--c:var(--grape)" role="tab" aria-selected="false" aria-controls="tour-screen" type="button" tabindex="-1"><span class="n">05</span><span class="t">AM primer</span><span class="d"><span><span>Start the primer: short guided steps, each with a demo video. I built the flow with Aaron Menezes, plus the video pipeline that makes playback start right away.</span></span></span><span class="track"><span class="bar"></span></span></button>
+      </div>
+      <p class="tour-desc" id="tour-desc" aria-hidden="true"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ Case 01 ═════════ -->
+<section class="section t-mint" id="work" aria-labelledby="a-title">
+  <div class="wrap">
+    <div class="case-head">
+      <div class="head seq">
+        <span class="pill"><span class="dot"></span>Case study 01 · Gamification</span>
+        <h2 class="h2" id="a-title">Giving athletes a reason to open the app <span class="c">tomorrow.</span></h2>
+        <p class="sub">XP, levels, streaks and Circuit Showdown, a seasonal competition between teams, built so the game rewards the coaching, not just the clicking.</p>
+      </div>
+      <dl class="facts seq">
+        <div><dt class="caps">Role</dt><dd>Designed and built it end to end: rules, data model, APIs, mobile and web UI</dd></div>
+        <div><dt class="caps">Timeline</dt><dd>Mar – Sep 2026</dd></div>
+        <div><dt class="caps">Stack</dt><dd>Flutter · Django · PostgreSQL · Next.js</dd></div>
+        <div><dt class="caps">Result</dt><dd><b>2× signups</b> since January 2026</dd></div>
+      </dl>
+    </div>
+
+    <ol class="steps" data-rail>
+      <li class="rail" aria-hidden="true"><i></i></li>
+      <li class="step">
+        <span class="num" aria-hidden="true">1</span>
+        <div class="rv">
+          <p class="step-label caps">Problem</p>
+          <h3>Training alone doesn’t stick.</h3>
+          <p>Athletes got a daily list of protocols and workouts. Finishing them earned nothing visible, and missing a day cost nothing. Coaches could encourage effort in chat, but nothing in the product rewarded it.</p>
+          <p>The answer couldn’t reward volume over quality, because the product is coaching.</p>
+        </div>
+        <div class="step-visual rv" style="--d:120">
+          <figure class="pull">
+            <q>Why would an athlete open the app tomorrow?</q>
+            <ul><li>Finishing the daily list earned nothing visible</li><li>Missing a day cost nothing</li><li>Coaching feedback lived only in chat</li></ul>
+          </figure>
+        </div>
+      </li>
+      <li class="step">
+        <span class="num" aria-hidden="true">2</span>
+        <div class="rv">
+          <p class="step-label caps">Decision</p>
+          <h3>Make the coach’s review the scoring event.</h3>
+          <ul class="choices">
+            <li class="choice"><s>Points the moment an athlete submits</s><b>Points when a coach reviews the work</b><p>Rewards quality, not volume. If a coach re-grades, only the difference is applied.</p></li>
+            <li class="choice"><s>One score for everything</s><b>Two currencies</b><p>XP and levels for personal progress, which never reset. Circuit points for teams, which reset every season.</p></li>
+            <li class="choice"><s>Multipliers and bonuses at launch</s><b>XP for workouts and daily pillars only, for now</b><p>Less to explain and tune before we knew what motivated athletes. The schema leaves room for more.</p></li>
+          </ul>
+        </div>
+        <div class="step-visual rv" style="--d:120">
+          <div class="flow" role="img" aria-label="Scoring flow. Ruled out: points on submit. Chosen: an athlete submits a workout, a coach reviews and grades it, points go to the athlete and team with re-grades applying only the difference, standings finalize weekly into a season leaderboard, and a new leader is posted to the activity feed.">
+            <div class="node" style="--i:0">Athlete submits a workout</div>
+            <div class="edge" style="--i:1"></div>
+            <div class="fork" style="--i:2"><div class="node off"><s>Points on submit</s></div><div class="node key">Coach reviews <small>scores</small></div></div>
+            <div class="edge r" style="--i:3"></div>
+            <div class="node" style="--i:4">Points to athlete and team <small>12→15 = +3</small></div>
+            <div class="edge" style="--i:5"></div>
+            <div class="node" style="--i:6">Weekly standings <small>weekly job</small></div>
+            <div class="edge" style="--i:7"></div>
+            <div class="node" style="--i:8">Season leaderboard <small>no overlap</small></div>
+            <div class="edge" style="--i:9"></div>
+            <div class="node" style="--i:10">New leader → activity feed</div>
+          </div>
+          <div class="two"><div><b>XP · levels</b><span>Personal. Never resets. 500 XP to level 2, then +50 per level.</span></div><div><b class="alt">Circuit points</b><span>Team. Resets every season.</span></div></div>
+        </div>
+      </li>
+      <li class="step">
+        <span class="num" aria-hidden="true">3</span>
+        <div class="rv">
+          <p class="step-label caps">Build</p>
+          <h3>Scoring you can retry, re-grade and trust.</h3>
+          <ul class="list">
+            <li><strong>Retry-safe XP.</strong> Every award is an event with a unique key, written inside a transaction with row locks, so a retry or double tap can’t credit twice.</li>
+            <li><strong>Re-grades apply the difference.</strong> 12 → 15 awards +3, so coaches can revise freely.</li>
+            <li><strong>Seasons that never overlap.</strong> Every week belongs to exactly one season; a weekly job finalizes standings and posts a new leader to the feed.</li>
+            <li><strong>Mobile and web.</strong> Team rankings, level progress, streaks and the home header in Flutter; circuit points in the Next.js web app.</li>
+            <li><strong>Then I made it fast.</strong> An API audit found Home firing 5+ requests, one a duplicate. I folded them into one bootstrap response and cached it on disk.</li>
+          </ul>
+          <figure class="code">
+<pre><code>event, created = XPEvent.objects.<span class="k">get_or_create</span>(
+    user=user, event_key=event_key, defaults={...},
+)
+<span class="k">if not</span> created:
+    <span class="k">return</span> event, False, 0</code></pre>
+            <figcaption>zerver/lib/xp.py: the same action always maps to the same key.</figcaption>
+          </figure>
+        </div>
+        <div class="step-visual rv-m" style="--d:120">
+          <div class="field"><div class="phone"><div class="scr"><img src="{{asset:app-level.webp}}" width="640" height="1391" loading="lazy" decoding="async" alt="Level progress in the app: level 14, 690 of 1,150 XP, and the road to the next tier."></div></div></div>
+          <p class="cap"><span>Level progress, current release</span><span class="mono">Demo data</span></p>
+        </div>
+      </li>
+      <li class="step">
+        <span class="num" aria-hidden="true">4</span>
+        <div class="rv">
+          <p class="step-label caps">Shipped</p>
+          <h3>Signups doubled.</h3>
+          <p>App signups have doubled since I joined in January 2026, over the same period that gamification and Circuit Showdown became the core of the product.</p>
+          <p>The loop now does the work: coaches grade submissions that feed a live season, and athletes see their level, streak and team rank before they tap anything.</p>
+        </div>
+        <div class="step-visual rv" style="--d:120">
+          <p class="big" aria-hidden="true">2<span class="x">×</span></p>
+          <p class="big-label"><b>signups</b>since January 2026</p>
+          <p class="sr-only">Signups doubled since January 2026.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ═════════ Case 02 ═════════ -->
+<section class="section panel ink t-sky" id="case-platform" aria-labelledby="b-title">
+  <div class="wrap">
+    <div class="case-head">
+      <div class="head seq">
+        <span class="pill"><span class="dot"></span>Case study 02 · Platform · Live</span>
+        <h2 class="h2" id="b-title">Turning a chat server into a platform that’s <span class="c">safe for teenagers.</span></h2>
+        <p class="sub">A new Next.js web app, sign-up with guardian consent, and messaging locked down on the server, with Zulip kept as the engine underneath.</p>
+      </div>
+      <dl class="facts seq">
+        <div><dt class="caps">Role</dt><dd>Scoped it, made the architecture and product calls, built most of it</dd></div>
+        <div><dt class="caps">Timeline</dt><dd>Jul – Sep 2026</dd></div>
+        <div><dt class="caps">Stack</dt><dd>Next.js · Django · Docker · nginx on GCP</dd></div>
+        <div><dt class="caps">Status</dt><dd><b>Live</b> on cortexflex.org since the September 2026 cutover</dd></div>
+      </dl>
+    </div>
+
+    <ol class="steps" data-rail>
+      <li class="rail" aria-hidden="true"><i></i></li>
+      <li class="step">
+        <span class="num" aria-hidden="true">1</span>
+        <div class="rv">
+          <p class="step-label caps">Problem</p>
+          <h3>The product was still a chat app underneath.</h3>
+          <p>CortexFlex was built on a fork of Zulip, an open-source team chat server. That gave us a fast start, but the web product was still Zulip’s interface: open channels, direct messages, and a list of every member.</p>
+          <p>Many of our athletes are 13 to 17. Open athlete-to-athlete messaging couldn’t be moderated responsibly, sign-up never asked anyone’s age, and transactional email was down on an account set up by a former developer.</p>
+        </div>
+        <div class="step-visual rv" style="--d:120">
+          <figure class="pull">
+            <q>A product for teenagers can’t be an open chat room.</q>
+            <ul><li>Any athlete could message any other athlete</li><li>Sign-up never asked for a date of birth</li><li>Transactional email was down</li></ul>
+          </figure>
+        </div>
+      </li>
+      <li class="step">
+        <span class="num" aria-hidden="true">2</span>
+        <div class="rv">
+          <p class="step-label caps">Decision</p>
+          <h3>Keep the engine. Replace the surface. Say no on purpose.</h3>
+          <ul class="choices">
+            <li class="choice"><s>Rewrite the backend</s><b>Zulip as an API-only engine behind a new Next.js app</b><p>Keeps the Cortex product we’d already built inside it.</p></li>
+            <li class="choice"><s>Moderate athlete-to-athlete chat</s><b>Lock messaging down on the server</b><p>Athletes can message only their own coach or Cortex staff. Channels and group messages are closed, and an activity feed replaces the rest.</p></li>
+            <li class="choice"><s>SMS to guardians at launch</s><b>Email first, behind one <code>notify_guardian()</code> seam</b><p>No new vendor or stored phone numbers yet; SMS can drop in later.</p></li>
+            <li class="choice"><s>One age rule for everyone</s><b>Age bands per country and region</b><p>A US athlete under 13 needs COPPA’s two-step guardian consent; elsewhere, sign-up below the local minimum is blocked.</p></li>
+          </ul>
+        </div>
+        <div class="step-visual rv" style="--d:120">
+          <div class="flow" role="img" aria-label="Consent by age and region. Onboarding collects role, date of birth and region. At the self-consent age, 18 or 13 in the US, the athlete signs the consent themselves. Between the local minimum and that age, 13 to 17 in Canada and 12 to 17 in Québec, a guardian signs through a one-time signed email link without creating an account. A US athlete under 13 needs a two-step COPPA consent, where the guardian signs and then confirms from a second email. Below the local minimum anywhere else, sign-up is blocked. Accounts still waiting on consent are deleted after 14 days.">
+            <div class="node" style="--i:0">Onboarding: role, date of birth, region</div>
+            <div class="edge" style="--i:1"></div>
+            <p class="flow-k caps" style="--i:2">Then one of four bands</p>
+            <div class="node" style="--i:3">Self-consent age <small>18 · 13 in the US</small></div>
+            <div class="node key" style="--i:4">Guardian band <small>CA 13–17 · QC 12–17</small></div>
+            <div class="sub" style="--i:5"><div class="node">Guardian signs from a one-time link <small>no account</small></div><div class="node">Not signed in 14 days <small>account deleted</small></div></div>
+            <div class="node" style="--i:6">US, under 13 <small>COPPA · two emails</small></div>
+            <div class="node off" style="--i:7"><s>Below the local minimum</s><small>blocked</small></div>
+          </div>
+          <p class="cap"><span>Consent by age and region, as it runs today</span></p>
+        </div>
+      </li>
+      <li class="step">
+        <span class="num" aria-hidden="true">3</span>
+        <div class="rv">
+          <p class="step-label caps">Build</p>
+          <h3>A new front door, with the keys kept on the server.</h3>
+          <ul class="list">
+            <li><strong>A Next.js app replacing Zulip’s web UI.</strong> Route handlers call Zulip on the server; the browser only holds an httpOnly session cookie, never an API key.</li>
+            <li><strong>Registration rebuilt around personas</strong> (athlete, coach, parent), with a date-of-birth and region step, age rules per country, and guardian consent by signed link.</li>
+            <li><strong>Consent documents per region.</strong> Canada, Québec in English and French, and the US, with consumer, team, coach and parent versions.</li>
+            <li><strong>Messaging lockdown enforced by the server</strong>, not just hidden in the interface.</li>
+            <li><strong>One VM, two hostnames.</strong> The Next.js app runs in Docker beside Zulip on the same GCP VM. nginx sends cortexflex.org to the app and keeps cortexflex.net for the API, so the app’s calls to Zulip never leave the machine.</li>
+          </ul>
+        </div>
+        <div class="step-visual rv-m" style="--d:120">
+          <div class="bleed"><div class="browser">
+            <div class="browser-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+            <img src="{{asset:web-today.webp}}" width="1400" height="664" loading="lazy" decoding="async" alt="The new Next.js web app’s Today page for a demo athlete: level, streak and Circuit Showdown rank up top, today’s AM primer and PM adaptor, a health score of 95, the nutrition list and today’s checklist.">
+          </div></div>
+          <p class="cap"><span>The new web app, Today page</span><span class="mono">Next.js</span></p>
+        </div>
+      </li>
+      <li class="step">
+        <span class="num" aria-hidden="true">4</span>
+        <div class="rv">
+          <p class="step-label caps">Shipped</p>
+          <h3>Live, with every step written down.</h3>
+          <p>cortexflex.org now runs the new web app, and cortexflex.net answers only the API the mobile apps use. Athletes can’t message each other, and an athlete under the age of consent can’t join until a guardian signs.</p>
+          <p>The cutover and every deploy since follow a runbook with a rollback, so shipping doesn’t depend on one person’s memory.</p>
+        </div>
+        <div class="step-visual rv" style="--d:120">
+          <div class="arch" role="img" aria-label="Architecture. Browsers reach cortexflex.org with only a session cookie; the iOS and Android apps call the Zulip API on cortexflex.net. Both hostnames land on nginx on one GCP VM. nginx routes cortexflex.org to the Next.js app, running in Docker, which holds the session and calls Zulip over 127.0.0.1. cortexflex.net serves only the Zulip API, which hosts the Cortex product layer on Django, PostgreSQL, Redis and RabbitMQ; other paths redirect to cortexflex.org. Email goes through Postmark.">
+            <div class="node" style="--i:0">Browser<small>cortexflex.org · cookie only</small></div>
+            <div class="node" style="--i:0">iOS · Android<small>cortexflex.net · API</small></div>
+            <div class="node wide" style="--i:1">nginx on one GCP VM<small>routes by hostname · other .net paths redirect to .org</small></div>
+            <div class="node key" style="--i:2">Next.js in Docker<small>holds the session · calls Zulip on 127.0.0.1</small></div>
+            <div class="node" style="--i:2">Zulip, API-only<small>cortexflex.net</small></div>
+            <div class="node wide" style="--i:3">Cortex product layer<div class="chips"><span class="hl">Zulip fork</span><span>Django</span><span>PostgreSQL</span><span>Redis</span><span>RabbitMQ</span></div></div>
+            <div class="node wide" style="--i:4">Postmark<small>consent and transactional email</small></div>
+          </div>
+          <ul class="runbooks" aria-label="Runbooks"><li>Cutover day: DNS, API-only mode, realm settings</li><li>Backend and web app deploys, each with a rollback</li><li>Postmark email, Postgres backups, cron jobs</li></ul>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ═════════ Case 03: product page ═════════ -->
+<section class="section panel tint t-coral" id="product-page" aria-labelledby="pp-title">
+  <div class="wrap">
+    <div class="head seq">
+      <span class="pill"><span class="dot"></span>Case study 03 · First impressions</span>
+      <h2 class="h2" id="pp-title">I designed and built the whole <span class="mark">product page.</span></h2>
+      <p class="sub">cortexflex.org is the first thing athletes, parents and coaches see, so I treated it like the product: real app UI rebuilt in code, motion with a purpose, and every section translated.</p>
+    </div>
+
+    <div class="pp-pin" id="pp-pin">
+      <div class="pp-sticky">
+        <div class="pp-stage rv-m">
+          <div class="browser">
+            <div class="browser-bar" aria-hidden="true"><i></i><i></i><i></i><span>cortexflex.org</span></div>
+            <div class="pp-view"><img id="pp-img" src="{{asset:pp-page.webp}}" width="1000" height="3688" loading="lazy" decoding="async" alt="The cortexflex.org product page from the top: the hero, aggregated results, an animated signal chain, the XP loop, and the app tour."></div>
+          </div>
+          <div class="phone"><div class="scr"><img src="{{asset:pp-mhero.webp}}" width="390" height="844" loading="lazy" decoding="async" alt="The same hero on a phone, with the headline and buttons stacked for touch."></div></div>
+        </div>
+        <div class="rv" style="--d:150">
+          <ol class="pp-steps" aria-label="Sections of the product page">
+            <li><button type="button" data-i="0" aria-current="true"><span class="n">01</span><b>Hero</b><span class="d"><span>A looping training video under the headline, with the paths for athletes and teams one tap away.</span></span></button></li>
+            <li><button type="button" data-i="1"><span class="n">02</span><b>Results</b><span class="d"><span>The evidence up front: aggregated outcomes, before any sales pitch.</span></span></button></li>
+            <li><button type="button" data-i="2"><span class="n">03</span><b>Signal chain</b><span class="d"><span>An animated line from mind to nervous system to muscle to performance, the science in one glance.</span></span></button></li>
+            <li><button type="button" data-i="3"><span class="n">04</span><b>The loop</b><span class="d"><span>Workout, XP, streak, progress: four live UI cards, rebuilt in code, that animate in sequence.</span></span></button></li>
+            <li><button type="button" data-i="4"><span class="n">05</span><b>App tour</b><span class="d"><span>An auto-advancing tour of the app that visitors can also click through.</span></span></button></li>
+          </ol>
+          <p class="pp-note mono">Real page, scrolled by your scroll · testimonial and photo sections skipped</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="points seq">
+      <div class="point t-coral"><span class="n"><span data-count="5700">5700</span>+</span><b>Lines, all mine</b><p>The page, its nav and hero, the app tour and every story section, each a React component.</p></div>
+      <div class="point t-sun"><span class="n">UI</span><b>The app, rebuilt in code</b><p>The XP toasts, streaks and level bars are real components, not screenshots, so they stay crisp and on-brand.</p></div>
+      <div class="point t-mint"><span class="n">EN · FR</span><b>Translated</b><p>Copy runs through next-intl, so the page ships in English and French.</p></div>
+      <div class="point t-sky"><span class="n">Motion</span><b>Audited</b><p>I ran a motion audit on the site, and the animated sections respect reduced-motion settings.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ More work + changelog ═════════ -->
+<section class="section t-grape" aria-labelledby="more-title">
+  <div class="wrap">
+    <div class="head seq">
+      <p class="eyebrow caps">Also at CortexFlex</p>
+      <h2 class="h2" id="more-title">Smaller problems, <span class="c">same approach.</span></h2>
+    </div>
+    <div class="works">
+      <article class="work t-sky rv">
+        <p class="top caps"><span>AMPLIFY</span><span>Aug – Sep</span></p>
+        <h3>A daily flow athletes can finish in minutes.</h3>
+        <p>The mobile side of AMPLIFY: the daily calibration check-in, the AM primer and PM adaptor runner (built with Aaron Menezes), and a health bar that shows how the day is going.</p>
+        <p class="stack mono">Flutter · Django</p>
+      </article>
+      <article class="work t-coral rv" style="--d:90">
+        <p class="top caps"><span>Performance</span><span>May</span></p>
+        <h3>Videos that play when you press play.</h3>
+        <p>Uploads kept their index at the end of the file, so players fetched the end before starting. I re-encode with <code>faststart</code> in the upload worker, stream range responses in chunks, and backfilled old videos.</p>
+        <p class="stack mono">Django · ffmpeg</p>
+      </article>
+      <article class="work t-sun rv" style="--d:180">
+        <p class="top caps"><span>Monetization</span><span>Jun – Sep</span></p>
+        <h3>Subscriptions and team plans.</h3>
+        <p>Stripe Checkout and Customer Portal, so there’s no card form to secure. Separate web and app store pricing, team plans with claim codes, and a free tier that caps history.</p>
+        <p class="stack mono">Stripe · Django · Next.js · Flutter</p>
+      </article>
+    </div>
+
+    <div class="head seq t-mint" style="margin-top:clamp(96px,11vw,144px)">
+      <p class="eyebrow caps">Changelog</p>
+      <h2 class="h2" id="log-title">Recently <span class="c">shipped.</span></h2>
+    </div>
+    <ol class="log t-mint seq" aria-labelledby="log-title">
+      <li><time class="mono" datetime="2026-09-29">Sep 29</time><span class="title">Product page refresh, with exercise and workout libraries</span><span class="tags"><span class="tag">Web</span></span></li>
+      <li><time class="mono" datetime="2026-09-28">Sep 28</time><span class="title">Premium sign-up and onboarding redesign, with guardian consent handoff</span><span class="tags"><span class="tag">Mobile</span><span class="tag">Backend</span></span></li>
+      <li><time class="mono" datetime="2026-09-21">Sep 21</time><span class="title">Circuit Showdown points in the activity feed</span><span class="tags"><span class="tag">Mobile</span><span class="tag">Web</span></span></li>
+      <li><time class="mono" datetime="2026-09-11">Sep 11</time><span class="title">Home loads from a disk cache, with duplicate requests removed</span><span class="tags"><span class="tag">Mobile</span><span class="tag">Backend</span></span></li>
+      <li><time class="mono" datetime="2026-09-04">Sep 4</time><span class="title">Registration overhaul: personas, partner-org onboarding, platform consent</span><span class="tags"><span class="tag">Web</span><span class="tag">Backend</span></span></li>
+      <li><time class="mono" datetime="2026-08-16">Aug 16</time><span class="title">Team plans for organizations, replacing the standalone tier</span><span class="tags"><span class="tag">Web</span><span class="tag">Backend</span></span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ═════════ Experience ═════════ -->
+<section class="section t-sky" id="experience" aria-labelledby="exp-title" style="padding-top:0">
+  <div class="wrap">
+    <div class="head seq">
+      <p class="eyebrow caps">Experience</p>
+      <h2 class="h2" id="exp-title">Where I’ve <span class="c">worked.</span></h2>
+    </div>
+    <ol class="roles">
+      <li class="role rv">
+        <div class="when mono"><span class="pill t-mint"><span class="dot"></span>Current</span><span>May 2026 – Present</span></div>
+        <div>
+          <h3>Tech Lead</h3><p class="org">CortexFlex · Montreal</p>
+          <ul class="list">
+            <li>Lead a team of six developers and turn stakeholder input into the roadmap and architecture decisions.</li>
+            <li>Own gamification, subscriptions, registration and consent, the new Next.js web platform, and the product page.</li>
+            <li>Ship to iOS and Android as Cortex Flex Performance, in English and French.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="role rv">
+        <div class="when mono"><span>Jan – May 2026</span></div>
+        <div>
+          <h3>Software Developer</h3><p class="org">CortexFlex · Montreal</p>
+          <ul class="list">
+            <li>Co-built the workout runner, the core training experience, through its App Store and Google Play release.</li>
+            <li>Built session logging, the video library, and the login and onboarding flow.</li>
+            <li>Wrote the Django APIs behind training programs, coach dashboards and athlete video submissions.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="role rv">
+        <div class="when mono"><span>Jan – Aug 2025</span></div>
+        <div>
+          <h3>Software Developer Intern</h3><p class="org">Nakisa · Montreal</p>
+          <ul class="list">
+            <li>Designed and built the data index behind the Action Center feature, for fast filtering of large enterprise datasets through Spring Boot REST APIs.</li>
+            <li>Rewrote underperforming indexes to improve query reliability and response times.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="role rv">
+        <div class="when mono"><span>2022 – 2025</span></div>
+        <div><h3>B.Sc. Computer Science</h3><p class="org" style="margin-bottom:0">McGill University · GPA 3.88 · Distributed systems, databases, operating systems, AI</p></div>
+      </li>
+    </ol>
+
+    <article class="project t-grape" id="projects" aria-labelledby="proj-title">
+      <div class="shot rv-m"><img src="{{asset:p-campus-connect.webp}}" width="1000" height="638" loading="lazy" decoding="async" alt="Campus Connect’s Create a New Meeting form with title, location, start and end times, repeat interval and seats per slot."></div>
+      <div class="seq">
+        <span class="pill"><span class="dot"></span>Earlier project · Team of 3 · 2024</span>
+        <h3 id="proj-title">Campus Connect</h3>
+        <p>A booking system for McGill students and staff. Members publish meeting slots, others book them or request a different time, and everyone gets notified.</p>
+        <p class="own"><b>What I owned:</b> routing and authentication for the React app, the auth, request and notification APIs and their MongoDB schemas, and the Create Meeting and Create Request flows.</p>
+        <p class="mono" style="margin:0;color:var(--faint)">React · Express · MongoDB · Node.js</p>
+      </div>
+    </article>
+
+    <div class="skills seq" id="skills">
+      <div class="skill t-coral"><h3>Product</h3><ul><li>Scoping and tradeoffs</li><li>UX flows and prototyping</li><li>Landing pages and first impressions</li><li>App Store and Play releases</li></ul></div>
+      <div class="skill t-sun"><h3>Frontend &amp; mobile</h3><ul><li>Flutter · Dart</li><li>Next.js · React</li><li>TypeScript · Tailwind</li><li>Motion and i18n</li></ul></div>
+      <div class="skill t-mint"><h3>Backend &amp; data</h3><ul><li>Django · Python</li><li>PostgreSQL</li><li>REST APIs</li><li>Java · Spring Boot</li></ul></div>
+      <div class="skill t-sky"><h3>Infrastructure</h3><ul><li>GCP Compute Engine</li><li>Docker · nginx</li><li>Puppet · cron</li><li>Stripe · Postmark</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ About ═════════ -->
+<section class="section t-coral" id="about" aria-labelledby="about-title" style="padding-top:0">
+  <div class="wrap about">
+    <div class="about-text seq">
+      <h2 class="eyebrow caps" id="about-title" style="margin-bottom:26px">About</h2>
+      <p>I like the part of a project where the question is still open: what should this be, who is it for, and what are we choosing not to do?</p>
+      <p>Then I like owning the answer all the way to production, and making the first impression count.</p>
+    </div>
+    <ul class="about-list seq">
+      <li class="t-sun"><span class="k caps">Off the clock</span>Dragon boat (my crew took gold at nationals this summer), lifting, basketball, bouldering</li>
+      <li class="t-mint"><span class="k caps">Languages</span>English and French</li>
+      <li class="t-sky"><span class="k caps">Based in</span>Montreal</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═════════ Contact ═════════ -->
+<section class="section panel ink t-coral cta" id="contact" aria-labelledby="contact-title">
+  <div class="shapes rv" aria-hidden="true">
+    <span style="--i:0;--r:-14deg;left:-18px;top:16%;width:120px;height:34px;background:var(--sun)"></span>
+    <span style="--i:1;right:-30px;top:12%;width:92px;height:92px;background:var(--sky)"></span>
+    <span style="--i:2;--r:12deg;right:9%;bottom:-20px;width:130px;height:36px;background:var(--grape)"></span>
+    <span style="--i:3;left:11%;bottom:14%;width:26px;height:26px;background:var(--mint)"></span>
+    <span style="--i:4;left:44%;top:9%;width:14px;height:14px;background:var(--coral)"></span>
+  </div>
+  <div class="wrap seq">
+    <span class="pill t-mint"><span class="dot"></span>Open to product engineering roles</span>
+    <h2 id="contact-title">Let’s build something people <span class="c">open tomorrow.</span></h2>
+    <p class="sub">I’m looking for product engineer and software engineer roles. Email is the fastest way to reach me.</p>
+    <div class="cta-actions">
+      <a class="btn btn-main" href="mailto:samuelrencs@gmail.com">Email me <span class="arr" aria-hidden="true">→</span></a>
+      <button class="btn" type="button" id="copy-email" data-email="samuelrencs@gmail.com">Copy email</button>
+      <a class="btn" href="https://www.linkedin.com/in/samuel-ren-75489024a/">LinkedIn <span aria-hidden="true">↗</span></a>
+      <a class="btn" href="https://github.com/SamuelRenCS">GitHub <span aria-hidden="true">↗</span></a>
+    </div>
+    <p class="copied" id="copied" role="status" aria-live="polite"></p>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap mono"><span>© 2026 Samuel Ren · Montreal</span><span>One HTML file, no framework</span></div>
+</footer>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  root.classList.add('js');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const wait = (ms) => new Promise((r) => setTimeout(r, reduced ? 0 : ms));
+  const hasIO = 'IntersectionObserver' in window;
+
+  /* ── Reveals and count-ups ── */
+  const show = (el) => { el.classList.add('in'); $$('[data-count]', el).forEach(countUp); };
+  const reveals = $$('.seq, .rv, .rv-m, .rv-art');
+  if (reduced || !hasIO) reveals.forEach(show);
+  else {
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { show(e.target); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    reveals.forEach((el) => io.observe(el));
+  }
+  function countUp(el) {
+    if (el.dataset.done) return; el.dataset.done = 1;
+    const to = +el.dataset.count;
+    if (reduced) return;
+    const dur = 1400, t0 = performance.now();
+    const tick = (t) => { const p = Math.min(1, (t - t0) / dur); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 4))); if (p < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }
+
+  /* ── Scroll-linked work: one rAF, reads first, then writes, only for what's on screen ── */
+  const rails = $$('[data-rail]').map((list) => ({ list, steps: $$('.step', list), on: false }));
+  const pin = $('#pp-pin'), ppImg = $('#pp-img'), ppSticky = $('.pp-sticky'), ppBtns = $$('.pp-steps button');
+  const STOPS = [0, 716, 1494, 2160, 2950], IMG_H = 3688; // section tops in the 1000px-wide capture
+  const pinnable = () => !reduced && !!pin;
+  let pinOn = false, stickyH = 0, ppIdx = 0, ticking = false;
+  if (!pinnable() && pin) pin.classList.add('static');
+  const ease = (x) => x * x * (3 - 2 * x);
+  const setPP = (pos, i) => {
+    ppImg.style.transform = `translate3d(0,${(-pos / IMG_H * 100).toFixed(3)}%,0)`;
+    if (i !== ppIdx) { ppIdx = i; ppBtns.forEach((b, j) => b.setAttribute('aria-current', String(j === i))); }
+  };
+  const frame = () => {
+    ticking = false;
+    const mid = innerHeight * 0.5;
+    // Reads
+    const railData = rails.filter((r) => r.on).map((r) => ({ r, box: r.list.getBoundingClientRect(), tops: r.steps.map((s) => s.getBoundingClientRect().top) }));
+    const pinBox = pinOn && pinnable() ? pin.getBoundingClientRect() : null;
+    // Writes
+    railData.forEach(({ r, box, tops }) => {
+      r.list.style.setProperty('--p', clamp((mid - box.top) / box.height).toFixed(3));
+      r.steps.forEach((s, i) => s.classList.toggle('on', tops[i] < mid));
+    });
+    if (pinBox) {
+      const t = clamp(-pinBox.top / Math.max(1, pinBox.height - stickyH)) * (STOPS.length - 1);
+      const i = Math.min(STOPS.length - 2, Math.floor(t)), f = t - i;
+      const e = ease(clamp((f - 0.22) / 0.56)); // hold on each section, then scroll to the next
+      setPP(STOPS[i] + (STOPS[i + 1] - STOPS[i]) * e, e < 0.5 ? i : i + 1);
+    }
+  };
+  const request = () => { if (!ticking) { ticking = true; requestAnimationFrame(frame); } };
+  if (hasIO) {
+    const vio = new IntersectionObserver((es) => es.forEach((e) => {
+      const r = rails.find((x) => x.list === e.target); if (r) r.on = e.isIntersecting;
+      if (e.target === pin) pinOn = e.isIntersecting;
+    }), { rootMargin: '200px 0px' });
+    rails.forEach((r) => vio.observe(r.list)); if (pin) vio.observe(pin);
+  } else { rails.forEach((r) => (r.on = true)); pinOn = true; }
+  const measure = () => { stickyH = ppSticky ? ppSticky.offsetHeight : 0; };
+  addEventListener('scroll', request, { passive: true });
+  addEventListener('resize', () => { measure(); request(); placeBlob(); });
+  measure(); request();
+
+  // Section buttons: scroll the page to the point where that section is showing, or jump straight there.
+  ppBtns.forEach((b, i) => b.addEventListener('click', () => {
+    if (!pinnable()) { setPP(STOPS[i], i); return; }
+    const box = pin.getBoundingClientRect();
+    const range = box.height - stickyH, n = STOPS.length - 1;
+    window.scrollTo({ top: scrollY + box.top + range * (i / n) + (i === 0 ? 0 : -range / n * 0.1), behavior: 'smooth' });
+  }));
+
+  /* ── Mobile menu ── */
+  const menuBtn = $('.menu-btn'), navList = $('#nav-list');
+  const setMenu = (open) => { navList.classList.toggle('open', open); menuBtn.setAttribute('aria-expanded', String(open)); menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); };
+  menuBtn.addEventListener('click', () => setMenu(!navList.classList.contains('open')));
+  navList.addEventListener('click', (e) => { if (e.target.closest('a')) setMenu(false); });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && navList.classList.contains('open')) { setMenu(false); menuBtn.focus(); } });
+
+  /* ── Active nav link, with a highlight that glides between items ── */
+  const links = $$('.nav-list a'), blob = $('.nav-blob');
+  let active = null;
+  function placeBlob() {
+    if (!active || getComputedStyle(blob).display === 'none') { blob.style.opacity = 0; return; }
+    const base = navList.getBoundingClientRect(), r = active.getBoundingClientRect();
+    blob.style.width = r.width + 'px'; blob.style.transform = `translateX(${r.left - base.left}px)`; blob.style.opacity = 1;
+  }
+  if (hasIO) {
+    const map = { tour: '#tour', work: '#work', 'case-platform': '#work', 'product-page': '#product-page', experience: '#experience', about: '#about' };
+    const sio = new IntersectionObserver((es) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const href = map[e.target.id];
+      active = href ? links.find((a) => a.getAttribute('href') === href) : null;
+      links.forEach((a) => a.setAttribute('aria-current', String(a === active)));
+      placeBlob();
+    }), { rootMargin: '-45% 0px -54% 0px' });
+    $$('main > section').forEach((s) => sio.observe(s));
+  }
+
+  /* ── The phone: a small navigation stack that behaves like the real app ──
+     home ─┬─ push → rank | level | primer   (tap the header rank, the level bar, or the primer button; back pops)
+           └─ sheet → cal                    (opens on its own, like the app's daily prompt; Confirm dismisses) */
+  const tour = $('#tour-ui'), scr = $('#tour-screen'), tourPhone = $('#tour-phone'), desc = $('#tour-desc');
+  const tabs = $$('.tab', tour), tabRow = $('.tabs', tour);
+  const S = {}; $$('.s', scr).forEach((s) => (S[s.dataset.s] = s));
+  const dim = $('.s-dim', scr), finger = $('.finger', scr);
+  const CH = ['cal', 'home', 'rank', 'level', 'primer'];
+  // Tap targets in % of the screen: x, y, w, h, corner radius (in container units).
+  const HIT = {
+    confirm: [5, 88.4, 90, 5.8, 3.5], rank: [85.5, 9.8, 12.5, 3.2, 1.5], level: [18, 9, 35, 5.2, 1.5],
+    primer: [70.6, 37.2, 9.7, 4.4, 2.2], back: [3.5, 8.6, 7.5, 3.6, 1.5], backPrimer: [5, 9, 8.5, 3.6, 1.5],
+  };
+  const EASE = 'cubic-bezier(.32,.72,0,1)'; // the iOS navigation curve
+  const anim = (el, kf, dur, easing = EASE) => {
+    const a = el.animate(kf, { duration: reduced ? 0 : dur, easing, fill: 'forwards' });
+    return a.finished.then(() => { try { a.commitStyles(); } catch (_) {} a.cancel(); });
+  };
+  let state = 'home', want = 'home', busy = false, current = 0;
+
+  async function tap(key, layer, mode) {
+    if (reduced || mode === 'none') return;
+    const [x, y, w, h, r] = HIT[key];
+    const img = $('img', layer);
+    const p = document.createElement('span');
+    p.className = 'press';
+    p.style.cssText = `left:${x}%;top:${y}%;width:${w}%;height:${h}%;border-radius:${r}cqw;background-image:url("${img.currentSrc || img.src}");background-size:${100 / w * 100}% ${100 / h * 100}%;background-position:${x / (100 - w) * 100}% ${y / (100 - h) * 100}%`;
+    layer.append(p);
+    if (mode === 'auto') {
+      finger.style.left = `${x + w / 2}%`; finger.style.top = `${y + h / 2}%`;
+      await anim(finger, [{ opacity: 0, transform: 'translate(-50%,-50%) scale(1.6)' }, { opacity: 1, transform: 'translate(-50%,-50%) scale(1)' }], 300, 'cubic-bezier(.2,.8,.2,1)');
+      await wait(90);
+    }
+    anim(finger, [{ transform: 'translate(-50%,-50%) scale(.82)' }], 110, 'ease-out');
+    await anim(p, [{ opacity: 0 }, { opacity: 1 }], 90, 'linear');
+    await wait(mode === 'auto' ? 140 : 60);
+    anim(p, [{ opacity: 1 }, { opacity: 0 }], 260, 'ease-out').then(() => p.remove());
+    if (mode === 'auto') anim(finger, [{ opacity: 1, transform: 'translate(-50%,-50%) scale(.82)' }, { opacity: 0, transform: 'translate(-50%,-50%) scale(1.1)' }], 320, 'ease-out');
+  }
+  const push = (k) => Promise.all([
+    anim(S[k], [{ transform: 'translate3d(100%,0,0)' }, { transform: 'translate3d(0,0,0)' }], 560),
+    anim(S.home, [{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(-30%,0,0)' }], 560),
+    anim(dim, [{ opacity: 0 }, { opacity: 0.35 }], 560),
+  ]);
+  const pop = (k) => Promise.all([
+    anim(S[k], [{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(100%,0,0)' }], 480),
+    anim(S.home, [{ transform: 'translate3d(-30%,0,0)' }, { transform: 'translate3d(0,0,0)' }], 480),
+    anim(dim, [{ opacity: 0.35 }, { opacity: 0 }], 480),
+  ]);
+  const sheet = (up) => Promise.all([
+    anim(S.cal, up ? [{ transform: 'translate3d(0,100%,0)' }, { transform: 'translate3d(0,0,0)' }] : [{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(0,100%,0)' }], up ? 620 : 420),
+    anim(dim, up ? [{ opacity: 0 }, { opacity: 0.5 }] : [{ opacity: 0.5 }, { opacity: 0 }], up ? 620 : 420),
+  ]);
+  const setState = (s) => {
+    state = s; scr.dataset.state = s;
+    Object.entries(S).forEach(([k, el]) => el.setAttribute('aria-hidden', String(!(k === s || (s === 'cal' && k === 'home')))));
+  };
+  // One step toward `want`, re-planned after every step so a new choice mid-flight just changes course.
+  async function step(userKey) {
+    const mode = (expected) => (userKey ? (userKey === expected ? 'user' : 'none') : 'auto');
+    if (state === 'cal') { await tap('confirm', S.cal, mode('confirm')); await sheet(false); return setState('home'); }
+    if (state !== 'home') { const k = state; await tap(k === 'primer' ? 'backPrimer' : 'back', S[k], mode('back')); await pop(k); return setState('home'); }
+    if (want === 'cal') { await sheet(true); return setState('cal'); }
+    const k = want; await tap(k, S.home, mode(k)); await push(k); setState(k);
+  }
+  async function go(userKey) {
+    if (busy) return;
+    busy = true; scr.classList.add('busy');
+    let key = userKey;
+    while (state !== want) { await step(key); key = null; if (state !== want) await wait(260); }
+    busy = false; scr.classList.remove('busy');
+  }
+
+  const DUR = 7000;
+  let timer = null, started = false;
+  const select = (i, { focus = false, userKey = null } = {}) => {
+    current = (i + tabs.length) % tabs.length;
+    tabs.forEach((t, j) => { t.setAttribute('aria-selected', String(j === current)); t.tabIndex = j === current ? 0 : -1; });
+    const tab = tabs[current];
+    scr.setAttribute('aria-labelledby', tab.id);
+    tourPhone.style.setProperty('--c', tab.style.getPropertyValue('--c'));
+    desc.textContent = $('.d', tab).textContent;
+    const bar = $('.bar', tab); bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = '';
+    if (focus) tab.focus();
+    // Keep the active chip centred in the mobile row. Horizontal only: never move the page.
+    if (tabRow.scrollWidth > tabRow.clientWidth) tabRow.scrollTo({ left: tab.offsetLeft - (tabRow.clientWidth - tab.offsetWidth) / 2, behavior: reduced ? 'auto' : 'smooth' });
+    want = CH[current];
+    if (started) { go(userKey); schedule(); }
+  };
+  const schedule = () => {
+    clearTimeout(timer);
+    if (reduced) return;
+    timer = setTimeout(function next() {
+      if (tour.classList.contains('paused') || document.hidden || busy) { timer = setTimeout(next, 600); return; }
+      select(current + 1);
+    }, DUR);
+  };
+  if (reduced) tour.classList.add('static');
+  tour.style.setProperty('--dur', DUR + 'ms');
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(i));
+    t.addEventListener('keydown', (e) => {
+      const k = e.key;
+      if (k === 'ArrowDown' || k === 'ArrowRight') { e.preventDefault(); select(i + 1, { focus: true }); }
+      else if (k === 'ArrowUp' || k === 'ArrowLeft') { e.preventDefault(); select(i - 1, { focus: true }); }
+      else if (k === 'Home') { e.preventDefault(); select(0, { focus: true }); }
+      else if (k === 'End') { e.preventDefault(); select(tabs.length - 1, { focus: true }); }
+    });
+  });
+  $$('.hs', scr).forEach((b) => b.addEventListener('click', () => select(+b.dataset.go, { userKey: b.dataset.key || 'barrier' })));
+  tour.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') tour.classList.add('paused'); });
+  tour.addEventListener('pointerleave', () => tour.classList.remove('paused'));
+  tour.addEventListener('focusin', () => tour.classList.add('paused'));
+  tour.addEventListener('focusout', () => tour.classList.remove('paused'));
+  setState('home');
+  select(0);
+  // The app "launches" when the phone scrolls into view: Home loads, then the daily sheet rises on its own.
+  const start = () => { if (started) return; started = true; setTimeout(() => { go(); schedule(); }, reduced ? 0 : 700); };
+  if (hasIO) {
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { start(); if (!busy) schedule(); } else clearTimeout(timer);
+    }, { threshold: 0.45 }).observe(scr);
+  } else start();
+
+  /* ── Copy email ── */
+  const copy = $('#copy-email'), copied = $('#copied');
+  copy.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(copy.dataset.email); copied.textContent = 'Copied to clipboard'; }
+    catch (e) { copied.textContent = copy.dataset.email; }
+    clearTimeout(copy._t); copy._t = setTimeout(() => (copied.textContent = ''), 2800);
+  });
+})();
+</script>
+</body>
+</html>
