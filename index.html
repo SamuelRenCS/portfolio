@@ -536,7 +536,7 @@ code{font-family:var(--mono);font-size:.86em}
       <div class="tabs" role="tablist" aria-label="App features">
         <button class="tab" id="tab-0" style="--c:var(--mint)" role="tab" aria-selected="true" aria-controls="tour-screen" type="button"><span class="n">01</span><span class="t">Daily calibration</span><span class="d"><span><span>Open the app and a sheet asks two quick questions before the day’s training. Answers carry over until the athlete changes them, so it never feels like a form.</span></span></span><span class="track"><span class="bar"></span></span></button>
         <button class="tab" id="tab-1" style="--c:var(--sun)" role="tab" aria-selected="false" aria-controls="tour-screen" type="button" tabindex="-1"><span class="n">02</span><span class="t">Today</span><span class="d"><span><span>Level, streak and team rank up top; health, primers, nutrition and the checklist below. I rebuilt it around one bootstrap request cached on disk, so it opens instantly.</span></span></span><span class="track"><span class="bar"></span></span></button>
-        <button class="tab" id="tab-2" style="--c:var(--coral)" role="tab" aria-selected="false" aria-controls="tour-screen" type="button" tabindex="-1"><span class="n">03</span><span class="t">Circuit Showdown</span><span class="d"><span><span>Tap the rank. Weekly and seasonal team standings, local and global. Points come from coach-reviewed work, so the board rewards quality, not volume.</span></span></span><span class="track"><span class="bar"></span></span></button>
+        <button class="tab" id="tab-2" style="--c:var(--coral)" role="tab" aria-selected="false" aria-controls="tour-screen" type="button" tabindex="-1"><span class="n">03</span><span class="t">Circuit Showdown</span><span class="d"><span><span>Tap the rank. Weekly and seasonal team standings, local and global. Teams are ranked on the share of possible points they earned, so a team of 5 can beat a team of 20.</span></span></span><span class="track"><span class="bar"></span></span></button>
         <button class="tab" id="tab-3" style="--c:var(--sky)" role="tab" aria-selected="false" aria-controls="tour-screen" type="button" tabindex="-1"><span class="n">04</span><span class="t">XP &amp; levels</span><span class="d"><span><span>Tap the level bar. Every completed step earns XP: 500 to reach level 2, then 50 more per level. Awards are idempotent, so a retry never counts twice.</span></span></span><span class="track"><span class="bar"></span></span></button>
         <button class="tab" id="tab-4" style="--c:var(--grape)" role="tab" aria-selected="false" aria-controls="tour-screen" type="button" tabindex="-1"><span class="n">05</span><span class="t">AM primer</span><span class="d"><span><span>Start the primer: short guided steps, each with a demo video. I built the flow with Aaron Menezes, plus the video pipeline that makes playback start right away.</span></span></span><span class="track"><span class="bar"></span></span></button>
       </div>
@@ -552,7 +552,7 @@ code{font-family:var(--mono);font-size:.86em}
       <div class="head seq">
         <span class="pill"><span class="dot"></span>Case study 01 · Gamification</span>
         <h2 class="h2" id="a-title">Giving athletes a reason to open the app <span class="c">tomorrow.</span></h2>
-        <p class="sub">XP, levels, streaks and Circuit Showdown, a seasonal competition between teams, built so the game rewards the coaching, not just the clicking.</p>
+        <p class="sub">XP, levels, streaks and Circuit Showdown, a seasonal competition between teams, built to reward athletes the moment they finish and to stay fair between teams of any size.</p>
       </div>
       <dl class="facts seq">
         <div><dt class="caps">Role</dt><dd>Designed and built it end to end: rules, data model, APIs, mobile and web UI</dd></div>
@@ -570,7 +570,7 @@ code{font-family:var(--mono);font-size:.86em}
           <p class="step-label caps">Problem</p>
           <h3>Training alone doesn’t stick.</h3>
           <p>Athletes got a daily list of protocols and workouts. Finishing them earned nothing visible, and missing a day cost nothing. Coaches could encourage effort in chat, but nothing in the product rewarded it.</p>
-          <p>The answer couldn’t reward volume over quality, because the product is coaching.</p>
+          <p>The reward had to be instant, or it wouldn’t change behaviour. And it had to be fair: raw point totals would hand every week to the biggest team.</p>
         </div>
         <div class="step-visual rv" style="--d:120">
           <figure class="pull">
@@ -583,26 +583,27 @@ code{font-family:var(--mono);font-size:.86em}
         <span class="num" aria-hidden="true">2</span>
         <div class="rv">
           <p class="step-label caps">Decision</p>
-          <h3>Make the coach’s review the scoring event.</h3>
+          <h3>Reward right away. Rank on consistency, not size.</h3>
           <ul class="choices">
-            <li class="choice"><s>Points the moment an athlete submits</s><b>Points when a coach reviews the work</b><p>Rewards quality, not volume. If a coach re-grades, only the difference is applied.</p></li>
+            <li class="choice"><s>Wait for a coach to score every workout</s><b>Grade automatically the moment it’s submitted</b><p>Points per block, capped, with a bonus for a video the coach asked for. Coaches can still re-grade or add bonus points, and only the difference is applied.</p></li>
+            <li class="choice"><s>Rank teams on total points</s><b>Rank teams on the share of possible points they earned</b><p>Each week’s ceiling is everything the team was assigned, so a team of 5 and a team of 20 compete on completion rate.</p></li>
             <li class="choice"><s>One score for everything</s><b>Two currencies</b><p>XP and levels for personal progress, which never reset. Circuit points for teams, which reset every season.</p></li>
-            <li class="choice"><s>Multipliers and bonuses at launch</s><b>XP for workouts and daily pillars only, for now</b><p>Less to explain and tune before we knew what motivated athletes. The schema leaves room for more.</p></li>
           </ul>
         </div>
         <div class="step-visual rv" style="--d:120">
-          <div class="flow" role="img" aria-label="Scoring flow. Ruled out: points on submit. Chosen: an athlete submits a workout, a coach reviews and grades it, points go to the athlete and team with re-grades applying only the difference, standings finalize weekly into a season leaderboard, and a new leader is posted to the activity feed.">
+          <div class="flow" role="img" aria-label="Scoring flow. An athlete submits a workout. It is graded automatically, with points per block, capped, plus a bonus for a video the coach asked for. XP and circuit points land right away. A coach can optionally re-grade, applying only the difference, or add bonus points. The team's score is its points as a share of everything it was assigned that week. A weekly job finalizes standings into the season leaderboard, and the activity feed announces when a team takes the lead.">
             <div class="node" style="--i:0">Athlete submits a workout</div>
             <div class="edge" style="--i:1"></div>
-            <div class="fork" style="--i:2"><div class="node off"><s>Points on submit</s></div><div class="node key">Coach reviews <small>scores</small></div></div>
-            <div class="edge r" style="--i:3"></div>
-            <div class="node" style="--i:4">Points to athlete and team <small>12→15 = +3</small></div>
-            <div class="edge" style="--i:5"></div>
-            <div class="node" style="--i:6">Weekly standings <small>weekly job</small></div>
-            <div class="edge" style="--i:7"></div>
-            <div class="node" style="--i:8">Season leaderboard <small>no overlap</small></div>
-            <div class="edge" style="--i:9"></div>
-            <div class="node" style="--i:10">New leader → activity feed</div>
+            <div class="node key" style="--i:2">Graded automatically <small>capped · +1 for video</small></div>
+            <div class="edge" style="--i:3"></div>
+            <div class="node" style="--i:4">XP and circuit points, right away</div>
+            <div class="sub" style="--i:5"><div class="node">Coach re-grades, optional <small>12→15 = +3</small></div></div>
+            <div class="edge" style="--i:6"></div>
+            <div class="node" style="--i:7">Team score <small>points ÷ possible</small></div>
+            <div class="edge" style="--i:8"></div>
+            <div class="node" style="--i:9">Weekly standings → season <small>weekly job</small></div>
+            <div class="edge" style="--i:10"></div>
+            <div class="node" style="--i:11">New leader → activity feed</div>
           </div>
           <div class="two"><div><b>XP · levels</b><span>Personal. Never resets. 500 XP to level 2, then +50 per level.</span></div><div><b class="alt">Circuit points</b><span>Team. Resets every season.</span></div></div>
         </div>
@@ -614,8 +615,9 @@ code{font-family:var(--mono);font-size:.86em}
           <h3>Scoring you can retry, re-grade and trust.</h3>
           <ul class="list">
             <li><strong>Retry-safe XP.</strong> Every award is an event with a unique key, written inside a transaction with row locks, so a retry or double tap can’t credit twice.</li>
-            <li><strong>Re-grades apply the difference.</strong> 12 → 15 awards +3, so coaches can revise freely.</li>
-            <li><strong>Seasons that never overlap.</strong> Every week belongs to exactly one season; a weekly job finalizes standings and posts a new leader to the feed.</li>
+            <li><strong>Auto-grading on submit.</strong> Points per block, capped per block, with a bonus for a video the coach asked for. Coach re-grades apply only the difference (12 → 15 awards +3), so coaches can revise freely.</li>
+            <li><strong>Fair team scores.</strong> Each week’s ceiling is the sum of what every athlete was assigned, and a team’s score is its share of that, so team size doesn’t decide the winner.</li>
+            <li><strong>Seasons that never overlap.</strong> Every week belongs to exactly one season, a weekly job finalizes the standings, and the feed announces when a team takes the lead.</li>
             <li><strong>Mobile and web.</strong> Team rankings, level progress, streaks and the home header in Flutter; circuit points in the Next.js web app.</li>
             <li><strong>Then I made it fast.</strong> An API audit found Home firing 5+ requests, one a duplicate. I folded them into one bootstrap response and cached it on disk.</li>
           </ul>
@@ -639,7 +641,7 @@ code{font-family:var(--mono);font-size:.86em}
           <p class="step-label caps">Shipped</p>
           <h3>Signups doubled.</h3>
           <p>App signups have doubled since I joined in January 2026, over the same period that gamification and Circuit Showdown became the core of the product.</p>
-          <p>The loop now does the work: coaches grade submissions that feed a live season, and athletes see their level, streak and team rank before they tap anything.</p>
+          <p>The loop now does the work: athletes see points the moment they submit, coaches can still adjust them, and every workout moves the team’s standing in a live season.</p>
         </div>
         <div class="step-visual rv" style="--d:120">
           <p class="big" aria-hidden="true">2<span class="x">×</span></p>
